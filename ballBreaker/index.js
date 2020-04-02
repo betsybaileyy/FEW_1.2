@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');
 const ballRadius = 10;
@@ -78,6 +79,7 @@ function collisionDetection() {
           b.status = 0;
           score += 1;
           if (score === brickRowCount * brickColumnCount) {
+            // eslint-disable-next-line no-alert
             alert('YOU WIN, CONGRATS!');
             document.location.reload();
           }
@@ -136,6 +138,7 @@ function drawBricks() {
   for (let c = 0; c < brickColumnCount; c += 1) {
     for (let r = 0; r < brickRowCount; r += 1) {
       // const { x, y, status } = bricks[c][r] // deconstruction
+      // eslint-disable-next-line no-shadow
       const { status, x, y } = bricks[c][r];
       if (status === 1) {
         // { x: brickX, y: brickY, status: 1 }
