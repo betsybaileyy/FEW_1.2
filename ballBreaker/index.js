@@ -89,6 +89,10 @@ function collisionDetection() {
   }
 }
 
+function resetBallAndPaddle() {
+    
+}
+
 // function drawBall() {
 //   const {
 //     beginPath,
