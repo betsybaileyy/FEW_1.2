@@ -25,6 +25,7 @@ const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
 const paddleXStart = (canvas.width - paddleWidth) / 2;
+const paddleYStart = canvas.height - paddleHeight;
 const PI2 = Math.PI * 2;
 const objectColor = '#0095DD';
 const fontStyle = '16px Arial';
@@ -90,9 +91,9 @@ class Bricks {
     this.bricks = [];
     this.init();
   }
-  init () {
+  init() {
       for (let c = 0; c < this.cols; c += 1) {
-        bricks[c] = [];
+        this.bricks[c] = [];
         for (let r = 0; r < this.rows; r += 1) {
           // **** This block should really be part of the brick initialization
           const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
@@ -102,42 +103,45 @@ class Bricks {
       }
     }
 
-    render() {
-      function drawBricks() {
-        for (let c = 0; c < this.cols; c += 1) {
-          for (let r = 0; r < this.rows; r += 1) {
-            const brick = this.bricks[c][r];
-            if (bricks[c][r].status === 1) {
-              brick.render(ctx);
-            }
-          }
+  render() {
+    for (let c = 0; c < this.cols; c += 1) {
+      for (let r = 0; r < this.rows; r += 1) {
+        const brick = this.bricks[c][r];
+        if (brick.status === 1) {
+          brick.render(ctx);
         }
       }
     }
+  }
 }
 
-const bricks = new Bricks(brickColumnCount, brickRowCount ) 
+const bricks = new Bricks(brickColumnCount, brickRowCount)
 
 // Paddle
 
 class Paddle {
-  constructor(x, y = ctx.height - this.height, width, height, color) {
+  constructor(x, y, width, height, color = 'red', stroke = 2) { //stroke
     this.x = x; // but the y  for paddle is canvas.height - paddleHeight
     this.y = y;
     this.width = width;
     this.height = height;
+    this.stroke = stroke; // line width
     this.color = color;
-    ctx.fillStyle = objectColor;
+    // ctx.fillStyle = objectColor;
   }
 
   render(ctx) {
     ctx.beginPath();
     ctx.rect(this.x, this.y, this.width, this.height);
-    ctx.fillStyle = this.Color;
+    ctx.fillStyle = this.color;
+    // ctx.strokeStyle = this.stroke;
     ctx.fill();
+    // ctx.stroke();
     ctx.closePath();
   }
 }
+
+const paddle = new Paddle(paddleXStart, paddleYStart, paddleWidth, paddleHeight)
 
 // Score
 
@@ -149,7 +153,7 @@ let ball = new Ball(0, 0, 2, -2, ballRadius, objectColor);
 
 // let paddleX; // = paddleXStart;
 
-let paddleX = new Paddle(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+// let paddleX = new Paddle(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
 
 resetBallAndPaddle();
 
@@ -163,9 +167,6 @@ let leftPressed = false;
 // Setup Bricks Array
 // --------------------------------------------------------------
 
-const bricks = [];
-
-initializeBricks();
 
 // *** This would be better in a function
 
@@ -248,12 +249,21 @@ function resetBallAndPaddle() {
   ball.y = canvas.height - 30;
   ball.dx = 2;
   ball.dy = -2;
-  paddleX = paddleXStart;
+  paddle.x = paddleXStart;
 }
 
 function moveBall() {
   ball.x += ball.dx;
   ball.y += ball.dy;
+}
+
+function movePaddle() {
+  // Check for arrow keys
+  if (rightPressed && paddle.x < canvas.width - paddle.width) {
+    paddle.x += 7;
+  } else if (leftPressed && paddle.x > 0) {
+    paddle.x -= 7;
+  }
 }
 
 // --------------------------------------------------------------
@@ -264,6 +274,7 @@ function draw() {
   // Clear the canvas
   // * canvas.width, and canvas.height might be better as constants
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  console.log(canvas.height, canvas.width);
   // Call helper functions
   bricks.render(ctx);
   ball.render(ctx);
@@ -273,19 +284,20 @@ function draw() {
   drawLives();
   collisionDetection();
   moveBall();
+  movePaddle();
 
   // Bounce the ball off the left and right of the canvas
-  if (ball.x + ball.dx > canvas.width - ballRadius || ball.x + ball.dx < ballRadius) {
+  if (ball.x + ball.dx > canvas.width - ball.radius || ball.x + ball.dx < ball.radius) {
     ball.dx = -ball.dx;
   }
 
   // Bounce the ball off the top, paddle, or hit the bottom of the canvas
-  if (ball.y + ball.dy < ballRadius) {
+  if (ball.y + ball.dy < ball.radius) {
     // hit the top
     ball.dy = -ball.dy;
-  } else if (ball.y + ball.dy > canvas.height - ballRadius) {
+  } else if (ball.y + ball.dy > canvas.height - ball.radius) {
     // hit the bottom
-    if (ball.x > paddleX && ball.x < paddleX + paddleWidth) {
+    if (ball.x > paddle.x && ball.x < paddle.x + paddle.width) {
       // Hit the paddle
       ball.dy = -ball.dy;
     } else {
@@ -305,13 +317,13 @@ function draw() {
   }
 
 
-  // Check for arrow keys
-  // *** Better as a function
-  if (rightPressed && paddleX < canvas.width - paddleWidth) {
-    paddleX += 7;
-  } else if (leftPressed && paddleX > 0) {
-    paddleX -= 7;
-  }
+  // // Check for arrow keys
+  // // *** Better as a function
+  // if (rightPressed && paddleX < canvas.width - paddleWidth) {
+  //   paddleX += 7;
+  // } else if (leftPressed && paddleX > 0) {
+  //   paddleX -= 7;
+  // }
 
   // Draw the screen again
   requestAnimationFrame(draw);
@@ -340,7 +352,7 @@ function keyUpHandler(e) {
 function mouseMoveHandler(e) {
   const relativeX = e.clientX - canvas.offsetLeft;
   if (relativeX > 0 && relativeX < canvas.width) {
-    paddleX = relativeX - paddleWidth / 2;
+    paddle.x = relativeX - paddleWidth / 2;
   }
 }
 
