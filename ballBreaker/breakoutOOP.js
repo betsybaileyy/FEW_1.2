@@ -45,10 +45,24 @@ const alertGameOver = 'GAME OVER';
 // let dx; // = 2;
 // let dy; // = -2;
 
-class Ball {
+class Sprite {
+  constructor(x, y) {
+    this.x = 0;
+    this.y = 0;
+  }
+
+  render(ctx) {
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.width, this.height);
+    ctx.fillStyle = this.color;
+    ctx.fill();
+  }
+}
+class Ball extends Sprite {
   constructor(x = 0, y = 0, dx = 2, dy = -1, radius = 10, color = 'red') {
-    this.x = x;
-    this.y = y;
+    super(x, y);
+    // this.x = x;
+    // this.y = y;
     this.dx = dx;
     this.dy = dy;
     this.radius = radius;
@@ -64,10 +78,11 @@ class Ball {
   }
 }
 
-class Brick {
+class Brick extends Sprite {
   constructor(x, y, width, height, color) {
-    this.x = x;
-    this.y = y;
+    super(x, y);
+    // this.x = x;
+    // this.y = y;
     this.status = 1;
     this.width = width;
     this.height = height;
@@ -120,10 +135,11 @@ const bricks = new Bricks(brickColumnCount, brickRowCount)
 
 // Paddle
 
-class Paddle {
+class Paddle extends Sprite {
   constructor(x, y, width, height, color = 'red', stroke = 2) { //stroke
-    this.x = x; // but the y  for paddle is canvas.height - paddleHeight
-    this.y = y;
+    super(x, y);
+    // this.x = x; // but the y  for paddle is canvas.height - paddleHeight
+    // this.y = y;
     this.width = width;
     this.height = height;
     this.stroke = stroke; // line width
@@ -146,10 +162,11 @@ const paddle = new Paddle(paddleXStart, paddleYStart, paddleWidth, paddleHeight)
 
 // Score
 
-class Score {
+class Score extends Sprite {
   constructor(x, y, color = objectColor, score = 0, font = fontStyle) {
-    this.x = x;
-    this.y = y;
+    super(x, y);
+    // this.x = x;
+    // this.y = y;
     this.color = color;
     this.score = score;
     this.font = font;
@@ -165,10 +182,11 @@ const score = new Score();
 
 // Lives
 
-class Lives {
+class Lives extends Sprite {
   constructor(x, y, color = objectColor, font = fontStyle, lives = 3) {
-    this.x = x;
-    this.y = y;
+    super(x, y);
+    // this.x = x;
+    // this.y = y;
     this.color = color;
     this.font = font;
     this.lives = lives;
