@@ -64,16 +64,80 @@ class Ball {
 }
 
 class Brick {
-  constructor(x, y) {
+  constructor(x, y, width, height, color) {
     this.x = x;
     this.y = y;
     this.status = 1;
+    this.width = width;
+    this.height = height;
+    this.color = color;
+  }
+
+  render(ctx) {
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.width, this.height);
+    ctx.fillStyle = this.Color;
+    ctx.fill();
+    ctx.closePath();
   }
 }
 
 // Bricks
+class Bricks {
+  constructor(cols, rows) {
+    this.cols = cols;
+    this.rows = rows;
+    this.bricks = [];
+    this.init();
+  }
+  init () {
+      for (let c = 0; c < this.cols; c += 1) {
+        bricks[c] = [];
+        for (let r = 0; r < this.rows; r += 1) {
+          // **** This block should really be part of the brick initialization
+          const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+          const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+          this.bricks[c][r] = new Brick(brickX, brickY, brickWidth, brickHeight, objectColor);
+        }
+      }
+    }
+
+    render() {
+      function drawBricks() {
+        for (let c = 0; c < this.cols; c += 1) {
+          for (let r = 0; r < this.rows; r += 1) {
+            const brick = this.bricks[c][r];
+            if (bricks[c][r].status === 1) {
+              brick.render(ctx);
+            }
+          }
+        }
+      }
+    }
+}
+
+const bricks = new Bricks(brickColumnCount, brickRowCount ) 
 
 // Paddle
+
+class Paddle {
+  constructor(x, y = ctx.height - this.height, width, height, color) {
+    this.x = x; // but the y  for paddle is canvas.height - paddleHeight
+    this.y = y;
+    this.width = width;
+    this.height = height;
+    this.color = color;
+    ctx.fillStyle = objectColor;
+  }
+
+  render(ctx) {
+    ctx.beginPath();
+    ctx.rect(this.x, this.y, this.width, this.height);
+    ctx.fillStyle = this.Color;
+    ctx.fill();
+    ctx.closePath();
+  }
+}
 
 // Score
 
@@ -81,9 +145,11 @@ class Brick {
 
 // Game (draw, runs game loop, creates instances of all other classes)
 
-let ball = new Ball(1, 2, 3, 4, 10);
+let ball = new Ball(0, 0, 2, -2, ballRadius, objectColor);
 
-let paddleX; // = paddleXStart;
+// let paddleX; // = paddleXStart;
+
+let paddleX = new Paddle(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
 
 resetBallAndPaddle();
 
@@ -109,45 +175,42 @@ initializeBricks();
 // **************************************************************
 
 
-function initializeBricks() {
-  for (let c = 0; c < brickColumnCount; c += 1) {
-    bricks[c] = [];
-    for (let r = 0; r < brickRowCount; r += 1) {
-      // **** This block should really be part of the brick initialization
-      const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
-      const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
-      bricks[c][r] = new Brick(brickX, brickY);
-    }
-  }
-}
+// function initializeBricks() {
+//   for (let c = 0; c < brickColumnCount; c += 1) {
+//     bricks[c] = [];
+//     for (let r = 0; r < brickRowCount; r += 1) {
+//       // **** This block should really be part of the brick initialization
+//       const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+//       const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+//       bricks[c][r] = new Brick(brickX, brickY, brickWidth, brickHeight, objectColor);
+//     }
+//   }
+// }
 
-function drawPaddle() {
-  ctx.beginPath();
-  ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-  ctx.fillStyle = objectColor;
-  ctx.fill();
-  ctx.closePath();
-}
+// function drawPaddle() {
+//   paddle.render(ctx);
+//   // ctx.beginPath();
+//   // ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+//   // ctx.fillStyle = objectColor;
+//   // ctx.fill();
+//   // ctx.closePath();
+// }
 
-function drawBricks() {
-  for (let c = 0; c < brickColumnCount; c += 1) {
-    for (let r = 0; r < brickRowCount; r += 1) {
-      const brick = bricks[c][r];
-      if (bricks[c][r].status === 1) {
-        ctx.beginPath();
-        ctx.rect(brick.x, brick.y, brickWidth, brickHeight);
-        ctx.fillStyle = objectColor;
-        ctx.fill();
-        ctx.closePath();
-      }
-    }
-  }
-}
+// function drawBricks() {
+//   for (let c = 0; c < brickColumnCount; c += 1) {
+//     for (let r = 0; r < brickRowCount; r += 1) {
+//       const brick = bricks[c][r];
+//       if (bricks[c][r].status === 1) {
+//         brick.render(ctx);
+//       }
+//     }
+//   }
+// }
 
 function collisionDetection() {
-  for (let c = 0; c < brickColumnCount; c += 1) {
-    for (let r = 0; r < brickRowCount; r += 1) {
-      const brick = bricks[c][r];
+  for (let c = 0; c < bricks.cols; c += 1) {
+    for (let r = 0; r < bricks.rows; r += 1) {
+      const brick = bricks.bricks[c][r];
       if (brick.status === 1) {
         if (ball.x > brick.x
           && ball.x < brick.x + brickWidth && ball.y > brick.y && ball.y < brick.y + brickHeight) {
@@ -202,9 +265,10 @@ function draw() {
   // * canvas.width, and canvas.height might be better as constants
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   // Call helper functions
-  drawBricks();
-  ball.render();
-  drawPaddle();
+  bricks.render(ctx);
+  ball.render(ctx);
+  paddle.render(ctx);
+  // drawPaddle();
   drawScore();
   drawLives();
   collisionDetection();
