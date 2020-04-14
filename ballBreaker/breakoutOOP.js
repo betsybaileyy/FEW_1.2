@@ -161,10 +161,28 @@ class Score {
     ctx.fillText(`Score: ${this.score}`, 8, 20);
   }
 }
-
-let score = new Score();
+const score = new Score();
 
 // Lives
+
+class Lives {
+  constructor(x, y, color = objectColor, font = fontStyle, lives = 3) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.font = font;
+    this.lives = lives;
+  }
+
+  render(ctx) {
+    ctx.font = this.font;
+    ctx.fillStyle = this.color;
+    // * canvas.width might be better as a constants
+    ctx.fillText(`Lives: ${this.lives}`, canvas.width - 65, 20);
+  }
+}
+
+let lives = new Lives();
 
 // Game (draw, runs game loop, creates instances of all other classes)
 
@@ -177,7 +195,7 @@ let ball = new Ball(0, 0, 2, -2, ballRadius, objectColor);
 resetBallAndPaddle();
 
 // let score = 0;
-let lives = 3;
+// let lives = 3;
 
 let rightPressed = false;
 let leftPressed = false;
@@ -254,12 +272,12 @@ function collisionDetection() {
 //   ctx.fillText(`Score: ${score}`, 8, 20);
 // }
 
-function drawLives() {
-  ctx.font = fontStyle;
-  ctx.fillStyle = objectColor;
-  // * canvas.width might be better as a constants
-  ctx.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
-}
+// function drawLives() {
+//   ctx.font = fontStyle;
+//   ctx.fillStyle = objectColor;
+//   // * canvas.width might be better as a constants
+//   ctx.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
+// }
 
 // set the ball in the middle of the canvas
 
@@ -300,7 +318,7 @@ function draw() {
   paddle.render(ctx);
   // drawPaddle();
   score.render(ctx);
-  drawLives();
+  lives.render(ctx);
   collisionDetection();
   moveBall();
   movePaddle();
