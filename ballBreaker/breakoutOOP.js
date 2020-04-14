@@ -91,17 +91,18 @@ class Bricks {
     this.bricks = [];
     this.init();
   }
+
   init() {
-      for (let c = 0; c < this.cols; c += 1) {
-        this.bricks[c] = [];
-        for (let r = 0; r < this.rows; r += 1) {
-          // **** This block should really be part of the brick initialization
-          const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
-          const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
-          this.bricks[c][r] = new Brick(brickX, brickY, brickWidth, brickHeight, objectColor);
-        }
+    for (let c = 0; c < this.cols; c += 1) {
+      this.bricks[c] = [];
+      for (let r = 0; r < this.rows; r += 1) {
+        // **** This block should really be part of the brick initialization
+        const brickX = (c * (brickWidth + brickPadding)) + brickOffsetLeft;
+        const brickY = (r * (brickHeight + brickPadding)) + brickOffsetTop;
+        this.bricks[c][r] = new Brick(brickX, brickY, brickWidth, brickHeight, objectColor);
       }
     }
+  }
 
   render() {
     for (let c = 0; c < this.cols; c += 1) {
@@ -145,6 +146,24 @@ const paddle = new Paddle(paddleXStart, paddleYStart, paddleWidth, paddleHeight)
 
 // Score
 
+class Score {
+  constructor(x, y, color = objectColor, score = 0, font = fontStyle) {
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.score = score;
+    this.font = font;
+  }
+
+  render(ctx) {
+    ctx.font = this.font;
+    ctx.fillStyle = this.color;
+    ctx.fillText(`Score: ${this.score}`, 8, 20);
+  }
+}
+
+let score = new Score();
+
 // Lives
 
 // Game (draw, runs game loop, creates instances of all other classes)
@@ -157,7 +176,7 @@ let ball = new Ball(0, 0, 2, -2, ballRadius, objectColor);
 
 resetBallAndPaddle();
 
-let score = 0;
+// let score = 0;
 let lives = 3;
 
 let rightPressed = false;
@@ -217,7 +236,7 @@ function collisionDetection() {
           && ball.x < brick.x + brickWidth && ball.y > brick.y && ball.y < brick.y + brickHeight) {
           ball.dy = -ball.dy;
           brick.status = 0;
-          score += 1;
+          score.score += 1;
           if (score === brickRowCount * brickColumnCount) {
             // eslint-disable-next-line no-alert
             alert(alertSuccess);
@@ -229,11 +248,11 @@ function collisionDetection() {
   }
 }
 
-function drawScore() {
-  ctx.font = fontStyle;
-  ctx.fillStyle = objectColor;
-  ctx.fillText(`Score: ${score}`, 8, 20);
-}
+// function drawScore() {
+//   ctx.font = fontStyle;
+//   ctx.fillStyle = objectColor;
+//   ctx.fillText(`Score: ${score}`, 8, 20);
+// }
 
 function drawLives() {
   ctx.font = fontStyle;
@@ -274,13 +293,13 @@ function draw() {
   // Clear the canvas
   // * canvas.width, and canvas.height might be better as constants
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  console.log(canvas.height, canvas.width);
+  // console.log(canvas.height, canvas.width);
   // Call helper functions
   bricks.render(ctx);
   ball.render(ctx);
   paddle.render(ctx);
   // drawPaddle();
-  drawScore();
+  score.render(ctx);
   drawLives();
   collisionDetection();
   moveBall();
